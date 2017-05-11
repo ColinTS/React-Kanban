@@ -13,7 +13,10 @@ body {
 }
 
 .queue {
-  border-right: thick double #ff0000;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  border-right: thick double #76a4ed;
   text-align: center;
   float: left;
   width: 33%;
@@ -27,7 +30,7 @@ body {
 
 .done {
   text-align: center;
-  border-left: thick double #ff0000;
+  border-left: thick double #76a4ed;
   float: right;
   width: 33%;
 }
