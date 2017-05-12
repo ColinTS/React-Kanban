@@ -1,3 +1,4 @@
+/*jshint esversion: 6*/
 const boardContainer = document.getElementById("board");
 
 
@@ -21,11 +22,6 @@ const CardList = ({ cards, forward, backward }) => (
     }
   </ul>
 );
-
-
-class Cards extends React.Component {
-
-}
 
 class DoneColumn extends React.Component {
   constructor(props){
