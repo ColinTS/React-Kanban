@@ -55,7 +55,7 @@ class ProgressColumn extends React.Component {
         <div>
           <div className="progress">
             <p>In Progress</p>
-            <CardList cards={this.props.progress} forward={this.props.moveForwardDone} backward={this.props.backward}></CardList>
+            <CardList cards={this.props.progress} forward={this.props.moveForwardDone} backward={this.props.moveBackwardQueue}></CardList>
           </div>
         </div>
     )
@@ -68,7 +68,6 @@ class QueueColumn extends React.Component {
   }
 
   render(){
-    console.log(this.props);
     return (
         <div>
           <div className="queue">
@@ -103,7 +102,6 @@ class NewCardForm extends React.Component{
   }
 
   addCard(card){
-    console.log(card);
     // update my parent's card state
     this.props.addCard(card);
 
@@ -195,6 +193,7 @@ class App extends React.Component{
     this.moveForward = this.moveForward.bind(this);
     this.moveForwardDone = this.moveForwardDone.bind(this);
     this.moveBackwardProgress = this.moveBackwardProgress.bind(this);
+    this.moveBackwardQueue = this.moveBackwardQueue.bind(this);
   }
 
   addCard(card){
@@ -258,7 +257,7 @@ class App extends React.Component{
       if(currentCard.id === id){
         index = cardIndex;
         card = currentCard;
-        card.status = "Progress"
+        card.status = "In Progress"
       }
     })
 
@@ -269,6 +268,29 @@ class App extends React.Component{
     this.setState({
       progress : addProgress,
       done : removeDone,
+    })
+
+  }
+
+  moveBackwardQueue(id){
+    let index, card;
+    let progressArray = this.state.progress
+
+    this.state.progress.forEach((currentCard, cardIndex) => {
+      if(currentCard.id === id){
+        index = cardIndex;
+        card = currentCard;
+        card.status = "Queue"
+      }
+    })
+
+    let removeProgress = this.state.progress.slice(0, index)
+                     .concat(this.state.progress.slice(index+ 1, progressArray.length));
+    let addTodo = this.state.todo.concat([card]);
+
+    this.setState({
+      todo : addTodo,
+      progress : removeProgress,
     })
 
   }
@@ -305,8 +327,8 @@ class App extends React.Component{
         <h1>Kanban Board</h1>
         <NewCardForm addCard={this.addCard}/>
         <QueueColumn todo={this.state.todo} backward= {()=> {}} moveForward={this.moveForward} />
-        <ProgressColumn progress={this.state.progress} backward= {()=> {}} moveForwardDone={this.moveForwardDone} />
-        <DoneColumn done={this.state.done} forward= {()=> {}}moveBackwardProgress={this.moveBackwardProgress} />
+        <ProgressColumn progress={this.state.progress} moveBackwardQueue= {this.moveBackwardQueue} moveForwardDone={this.moveForwardDone} />
+        <DoneColumn done={this.state.done} forward= {()=> {}} moveBackwardProgress={this.moveBackwardProgress} />
       </div>
     );
   }
