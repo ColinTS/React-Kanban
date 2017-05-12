@@ -10,7 +10,7 @@ const Card = (props) => (
     <p>{ props.card.assigned_to }</p>
     <p>{ props.card.id }</p>
     <button id="backward">backward</button>
-    <button id="forward" onClick = { props.moveForward() }>forward</button>
+    <button id="forward" onClick = { props.moveForward.bind(this, props.card.id) }>forward</button>
   </div>
 );
 
@@ -204,19 +204,36 @@ class App extends React.Component{
     });
   }
 
-  // let remove = this.state.cards.slice(indexOf(card.id));
-  // let add = this.state.progress.concat(card);
 
-  moveForward(card){
-    console.log('moveForward')
-    // this.setState({
 
-    // });
+  moveForward(id){
+    console.log('hello');
+    let index, card;
+    let todoArray = this.state.todo
+
+    this.state.todo.forEach((currentCard, cardIndex) => {
+      if(currentCard.id === id){
+        index = cardIndex;
+        card = currentCard;
+        card.status = "In Progress"
+      }
+    })
+
+    let removeTodo = this.state.todo.slice(0, index)
+                     .concat(this.state.todo.slice(index+ 1, todoArray.length));
+    let addProgress = this.state.progress.concat([card]);
+
+    console.log('todo', removeTodo)
+    console.log('progress', addProgress)
+
+    this.setState({
+      todo : removeTodo,
+      progress : addProgress,
+    })
 
   }
 
   componentWillMount() {
-    console.log('hey');
     const todo = [];
     const progress = [];
     const done = [];
