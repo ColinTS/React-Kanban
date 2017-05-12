@@ -10,14 +10,14 @@ const Card = (props) => (
     <p>{ props.card.assigned_to }</p>
     <p>{ props.card.id }</p>
     <button id="backward">backward</button>
-    <button id="forward" onClick = { props.moveForward.bind(this, props.card.id) }>forward</button>
+    <button id="forward" onClick = { props.forward.bind(this, props.card.id) }>forward</button>
   </div>
 );
 
-const CardList = ({ cards, moveForward }) => (
+const CardList = ({ cards, forward }) => (
   <ul>
     { cards
-      .map( card => <Card card={card} moveForward={moveForward} /> )
+      .map( card => <Card card={card} forward={forward} /> )
     }
   </ul>
 );
@@ -37,7 +37,7 @@ class DoneColumn extends React.Component {
         <div>
           <div className="done">
             <p>Done</p>
-            <CardList cards={this.props.done} moveForward={this.props.moveForward}></CardList>
+            <CardList cards={this.props.done} forward={this.props.moveForward}></CardList>
           </div>
         </div>
 
@@ -55,7 +55,7 @@ class ProgressColumn extends React.Component {
         <div>
           <div className="progress">
             <p>In Progress</p>
-            <CardList cards={this.props.progress} moveForward={this.props.moveForward}></CardList>
+            <CardList cards={this.props.progress} forward={this.props.moveForwardDone}></CardList>
           </div>
         </div>
     )
@@ -73,7 +73,7 @@ class QueueColumn extends React.Component {
         <div>
           <div className="queue">
             <p>To Do</p>
-            <CardList cards={this.props.todo} moveForward={this.props.moveForward} ></CardList>
+            <CardList cards={this.props.todo} forward={this.props.moveForward} ></CardList>
           </div>
         </div>
     )
@@ -195,6 +195,7 @@ class App extends React.Component{
 
     this.addCard = this.addCard.bind(this);
     this.moveForward = this.moveForward.bind(this);
+    this.moveForwardDone = this.moveForwardDone.bind(this);
   }
 
   addCard(card){
@@ -203,8 +204,6 @@ class App extends React.Component{
       todo : this.state.todo.concat(card)
     });
   }
-
-
 
   moveForward(id){
     console.log('hello');
@@ -223,12 +222,33 @@ class App extends React.Component{
                      .concat(this.state.todo.slice(index+ 1, todoArray.length));
     let addProgress = this.state.progress.concat([card]);
 
-    console.log('todo', removeTodo)
-    console.log('progress', addProgress)
-
     this.setState({
       todo : removeTodo,
       progress : addProgress,
+    })
+
+  }
+
+  moveForwardDone(id){
+    console.log('hello');
+    let index, card;
+    let progressArray = this.state.progress
+
+    this.state.progress.forEach((currentCard, cardIndex) => {
+      if(currentCard.id === id){
+        index = cardIndex;
+        card = currentCard;
+        card.status = "Done"
+      }
+    })
+
+    let removeProgress = this.state.progress.slice(0, index)
+                     .concat(this.state.progress.slice(index+ 1, progressArray.length));
+    let addDone = this.state.done.concat([card]);
+
+    this.setState({
+      progress : removeProgress,
+      done : addDone,
     })
 
   }
@@ -265,7 +285,7 @@ class App extends React.Component{
         <h1>Kanban Board</h1>
         <NewCardForm addCard={this.addCard}/>
         <QueueColumn todo={this.state.todo} moveForward={this.moveForward} />
-        <ProgressColumn progress={this.state.progress} moveForward={this.moveForward} />
+        <ProgressColumn progress={this.state.progress} moveForwardDone={this.moveForwardDone} />
         <DoneColumn done={this.state.done} moveForward={this.moveForward} />
       </div>
     );
