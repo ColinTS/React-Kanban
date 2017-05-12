@@ -9,15 +9,15 @@ const Card = (props) => (
     <p>{ props.card.created_by }</p>
     <p>{ props.card.assigned_to }</p>
     <p>{ props.card.id }</p>
-    <button id="backward">backward</button>
+    <button id="backward" onClick = { props.backward.bind(this, props.card.id) }>backward</button>
     <button id="forward" onClick = { props.forward.bind(this, props.card.id) }>forward</button>
   </div>
 );
 
-const CardList = ({ cards, forward }) => (
+const CardList = ({ cards, forward, backward }) => (
   <ul>
     { cards
-      .map( card => <Card card={card} forward={forward} /> )
+      .map( card => <Card card={card} forward={forward} backward={backward} /> )
     }
   </ul>
 );
@@ -37,7 +37,7 @@ class DoneColumn extends React.Component {
         <div>
           <div className="done">
             <p>Done</p>
-            <CardList cards={this.props.done} forward={this.props.moveForward}></CardList>
+            <CardList cards={this.props.done} forward={this.props.forward} backward={this.props.moveBackwardProgress}></CardList>
           </div>
         </div>
 
@@ -55,7 +55,7 @@ class ProgressColumn extends React.Component {
         <div>
           <div className="progress">
             <p>In Progress</p>
-            <CardList cards={this.props.progress} forward={this.props.moveForwardDone}></CardList>
+            <CardList cards={this.props.progress} forward={this.props.moveForwardDone} backward={this.props.backward}></CardList>
           </div>
         </div>
     )
@@ -73,7 +73,7 @@ class QueueColumn extends React.Component {
         <div>
           <div className="queue">
             <p>To Do</p>
-            <CardList cards={this.props.todo} forward={this.props.moveForward} ></CardList>
+            <CardList cards={this.props.todo} forward={this.props.moveForward} backward={this.props.backward} ></CardList>
           </div>
         </div>
     )
@@ -179,8 +179,6 @@ class NewCardForm extends React.Component{
 
 }
 
-
-
 class App extends React.Component{
 
   constructor(props){
@@ -196,6 +194,7 @@ class App extends React.Component{
     this.addCard = this.addCard.bind(this);
     this.moveForward = this.moveForward.bind(this);
     this.moveForwardDone = this.moveForwardDone.bind(this);
+    this.moveBackwardProgress = this.moveBackwardProgress.bind(this);
   }
 
   addCard(card){
@@ -206,7 +205,6 @@ class App extends React.Component{
   }
 
   moveForward(id){
-    console.log('hello');
     let index, card;
     let todoArray = this.state.todo
 
@@ -230,7 +228,6 @@ class App extends React.Component{
   }
 
   moveForwardDone(id){
-    console.log('hello');
     let index, card;
     let progressArray = this.state.progress
 
@@ -249,6 +246,29 @@ class App extends React.Component{
     this.setState({
       progress : removeProgress,
       done : addDone,
+    })
+
+  }
+
+  moveBackwardProgress(id){
+    let index, card;
+    let doneArray = this.state.done
+
+    this.state.done.forEach((currentCard, cardIndex) => {
+      if(currentCard.id === id){
+        index = cardIndex;
+        card = currentCard;
+        card.status = "Progress"
+      }
+    })
+
+    let removeDone = this.state.done.slice(0, index)
+                     .concat(this.state.done.slice(index+ 1, doneArray.length));
+    let addProgress = this.state.progress.concat([card]);
+
+    this.setState({
+      progress : addProgress,
+      done : removeDone,
     })
 
   }
@@ -284,9 +304,9 @@ class App extends React.Component{
       <div>
         <h1>Kanban Board</h1>
         <NewCardForm addCard={this.addCard}/>
-        <QueueColumn todo={this.state.todo} moveForward={this.moveForward} />
-        <ProgressColumn progress={this.state.progress} moveForwardDone={this.moveForwardDone} />
-        <DoneColumn done={this.state.done} moveForward={this.moveForward} />
+        <QueueColumn todo={this.state.todo} backward= {()=> {}} moveForward={this.moveForward} />
+        <ProgressColumn progress={this.state.progress} backward= {()=> {}} moveForwardDone={this.moveForwardDone} />
+        <DoneColumn done={this.state.done} forward= {()=> {}}moveBackwardProgress={this.moveBackwardProgress} />
       </div>
     );
   }
